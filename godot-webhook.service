@@ -1,0 +1,12 @@
+[Unit]
+Description=Godot Webhook
+After=network.target
+
+[Service]
+User=hpserver
+Environment=WEBHOOK_SECRET=your_secret_here
+ExecStart=/usr/bin/python3 /home/hpserver/godot-builder/webhook.py
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

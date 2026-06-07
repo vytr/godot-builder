@@ -1,0 +1,11 @@
+[Unit]
+Description=Godot Builder Web UI
+After=network.target
+
+[Service]
+User=hpserver
+ExecStart=/usr/bin/python3 /home/hpserver/godot-builder/app.py
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
