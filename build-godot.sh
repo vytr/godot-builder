@@ -11,7 +11,7 @@ cd $REPO
 git fetch origin
 git stash
 git checkout $BRANCH
-git pull origin $BRANCH
+git reset --hard origin/$BRANCH
 
 # Use export_presets.cfg from main if missing in branch
 if [ ! -f "$REPO/export_presets.cfg" ]; then
