@@ -4,7 +4,7 @@ import subprocess, os, json, time
 app = Flask(__name__)
 
 REPO = os.path.expanduser("~/industrial-flow")
-BUILD_SCRIPT = os.path.expanduser("~/build-godot.sh")
+BUILD_SCRIPT = os.path.expanduser("~/godot-builder/build-godot.sh")
 STATUS_FILE = '/tmp/godot-build-status.json'
 
 def write_status(branch, state, line=''):
