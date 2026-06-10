@@ -212,15 +212,18 @@ def last_status():
 def status_stream():
     def generate():
         last_ts = 0
-        while True:
-            try:
-                data = read_status()
-                if data and data['ts'] != last_ts:
-                    last_ts = data['ts']
-                    yield f"data: {json.dumps(data)}\n\n"
-            except:
-                pass
-            time.sleep(0.5)
+        try:
+            while True:
+                try:
+                    data = read_status()
+                    if data and data['ts'] != last_ts:
+                        last_ts = data['ts']
+                        yield f"data: {json.dumps(data)}\n\n"
+                except Exception as e:
+                    print(f'[warn] status_stream error: {e}')
+                time.sleep(0.5)
+        except GeneratorExit:
+            pass
     return Response(stream_with_context(generate()), mimetype='text/event-stream')
 
 @app.route('/build')
