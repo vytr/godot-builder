@@ -46,6 +46,8 @@ def webhook():
         return 'ok', 200
 
     import threading
+    if os.path.exists('/tmp/godot-build.lock'):
+        return f'Build already in progress, skipping {branch}', 200
     threading.Thread(target=run_build, args=(branch,), daemon=True).start()
     return f'Building {branch}', 200
 

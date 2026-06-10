@@ -5,6 +5,16 @@ export GIT_SSH_COMMAND="ssh -i ~/.ssh/github_deploy -o StrictHostKeyChecking=no"
 REPO=~/industrial-flow
 BRANCH=${1:-main}
 OUT=/var/www/godot-game
+LOCK=/tmp/godot-build.lock
+TIMEOUT=300
+
+# Prevent parallel builds
+if [ -f "$LOCK" ]; then
+    echo "=== Build already in progress, aborting ==="
+    exit 1
+fi
+touch "$LOCK"
+trap "rm -f $LOCK" EXIT
 
 echo "=== Switching to branch: $BRANCH ==="
 cd $REPO
@@ -20,6 +30,10 @@ fi
 
 echo "=== Building HTML5 ==="
 mkdir -p $OUT
-godot --headless --export-release "Web" $OUT/index.html
+timeout $TIMEOUT godot --headless --export-release "Web" $OUT/index.html
+if [ $? -eq 124 ]; then
+    echo "=== Build timed out after ${TIMEOUT}s ==="
+    exit 1
+fi
 
 echo "=== Done! ==="
