@@ -11,11 +11,15 @@ def write_status(branch, state, line=''):
     with open(STATUS_FILE, 'w') as f:
         json.dump({'branch': branch, 'state': state, 'line': line, 'ts': time.time(), 'time': time.strftime('%H:%M:%S')}, f)
 
+LOCK_FILE = '/tmp/godot-build.lock'
+
 def read_status():
     try:
         with open(STATUS_FILE) as f:
             return json.load(f)
-    except:
+    except Exception as e:
+        if not isinstance(e, FileNotFoundError):
+            print(f'[warn] read_status failed: {e}')
         return None
 
 HTML = """
@@ -140,12 +144,13 @@ HTML = """
             document.getElementById('ws-branch').textContent = d.branch + ' ';
             const stateEl = document.getElementById('ws-state');
             const buildBtn = document.getElementById('build-btn');
+            const currentBranch = document.getElementById('branch').value;
             if (d.state === 'building') {
                 stateEl.style.color = '#d4d4d4';
                 buildBtn.disabled = true;
             } else if (d.state === 'success') {
                 stateEl.style.color = '#4ec94e';
-                setOpenBtn(true);
+                if (d.branch === currentBranch) setOpenBtn(true);
                 buildBtn.disabled = false;
             } else {
                 stateEl.style.color = '#f44747';
@@ -223,6 +228,9 @@ def build():
     branch = request.args.get('branch', 'main')
 
     def generate():
+        if os.path.exists(LOCK_FILE):
+            yield f"data: {json.dumps({'line': '=== Build already in progress, try again later ===', 'done': True, 'success': False})}\n\n"
+            return
         write_status(branch, 'building', f'Starting build for {branch}...')
         proc = subprocess.Popen(
             ['bash', BUILD_SCRIPT, branch],
