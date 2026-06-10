@@ -20,12 +20,12 @@ echo "=== Switching to branch: $BRANCH ==="
 cd $REPO
 git fetch origin
 git stash
-git checkout $BRANCH
-git reset --hard origin/$BRANCH
+git checkout "$BRANCH"
+git reset --hard "origin/$BRANCH"
 
 # Use export_presets.cfg from main if missing in branch
 if [ ! -f "$REPO/export_presets.cfg" ]; then
-    git -C $REPO show main:export_presets.cfg > $REPO/export_presets.cfg
+    git -C "$REPO" show main:export_presets.cfg > "$REPO/export_presets.cfg" || true
 fi
 
 echo "=== Building HTML5 ==="
